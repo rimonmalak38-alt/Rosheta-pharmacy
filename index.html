@@ -55,9 +55,8 @@
     </div>
   </div>
 
-  <!-- التطبيق الرئيسي (مخفي حتى يتم تسجيل الدخول) -->
+  <!-- التطبيق الرئيسي -->
   <div id="app-container" class="hidden min-h-screen flex flex-col lg:flex-row">
-    <!-- القائمة الجانبية -->
     <aside class="w-full lg:w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0">
       <div>
         <div class="p-5 border-b border-slate-800 flex items-center gap-3">
@@ -78,7 +77,7 @@
             <i data-lucide="shopping-cart" class="w-4 h-4"></i> شاشة الكاشير (POS)
           </button>
           <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-slate-800 transition">
-            <i data-lucide="package" class="w-4 h-4"></i> المخزون والأدوية
+            <i data-lucide="package" class="w-4 h-4"></i> المخزون والباركود
           </button>
           <button onclick="switchTab('invoices')" id="nav-invoices" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-slate-800 transition">
             <i data-lucide="receipt" class="w-4 h-4"></i> سجل الفواتير والمرتجعات
@@ -100,9 +99,7 @@
       </div>
     </aside>
 
-    <!-- المحتوى الرئيسي -->
     <main class="flex-1 flex flex-col min-w-0">
-      <!-- الشريط العلوي -->
       <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <h1 id="page-title" class="text-lg font-extrabold text-slate-800">شاشة الكاشير ونقطة البيع</h1>
@@ -117,15 +114,21 @@
       <section id="tab-pos" class="p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1">
         <div class="lg:col-span-7 flex flex-col gap-4">
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-extrabold text-emerald-700 flex items-center gap-1.5">
+                <i data-lucide="scan-barcode" class="w-4 h-4"></i> جاهز لاستقبال ماكينة الباركود أو البحث بالاسم
+              </span>
+              <span id="barcode-toast" class="hidden text-xs font-extrabold px-2.5 py-0.5 rounded-full"></span>
+            </div>
             <div class="relative">
               <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute right-3.5 top-3.5"></i>
-              <input id="pos-search" type="text" placeholder="ابحث باسم الدواء، المادة الفعالة، أو الباركود ثم اضغط Enter..." class="w-full rounded-xl border border-slate-300 pr-11 pl-4 py-3 text-sm font-semibold focus:border-emerald-600 focus:outline-none" />
+              <input id="pos-search" type="text" autofocus placeholder="اضرب الباركود بالماكينة أو اكتب اسم الدواء..." class="w-full rounded-xl border-2 border-emerald-500/40 pr-11 pl-4 py-3 text-sm font-bold focus:border-emerald-600 focus:outline-none bg-emerald-50/20" />
             </div>
             <div class="flex flex-wrap gap-1.5 mt-3" id="category-filters"></div>
           </div>
 
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 overflow-hidden flex flex-col">
-            <div class="overflow-y-auto custom-scroll max-h-[540px] divide-y divide-slate-100" id="pos-products-list"></div>
+            <div class="overflow-y-auto custom-scroll max-h-[520px] divide-y divide-slate-100" id="pos-products-list"></div>
           </div>
         </div>
 
@@ -170,10 +173,10 @@
       <!-- 2. المخزون والأدوية -->
       <section id="tab-inventory" class="hidden p-4 lg:p-6 space-y-4">
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3">
-          <input id="inv-search" type="text" oninput="renderInventory()" placeholder="بحث في المخزون..." class="w-full sm:w-72 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold" />
+          <input id="inv-search" type="text" oninput="renderInventory()" placeholder="بحث بالاسم أو الباركود..." class="w-full sm:w-72 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold" />
           <div class="flex flex-wrap gap-2">
             <button onclick="openAddModal()" class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-extrabold flex items-center gap-1.5">
-              <i data-lucide="plus" class="w-4 h-4"></i> إضافة صنف جديد
+              <i data-lucide="plus" class="w-4 h-4"></i> إضافة صنف / تسجيل باركود
             </button>
           </div>
         </div>
@@ -183,10 +186,10 @@
             <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold">
               <tr>
                 <th class="p-3.5">اسم الصنف</th>
+                <th class="p-3.5">الباركود</th>
                 <th class="p-3.5">التصنيف</th>
                 <th class="p-3.5">سعر العلبة</th>
-                <th class="p-3.5">عدد الشرائط</th>
-                <th class="p-3.5">الرصيد (علب)</th>
+                <th class="p-3.5">الرصيد</th>
                 <th class="p-3.5">الصلاحية</th>
                 <th class="p-3.5">إجراءات</th>
               </tr>
@@ -222,12 +225,16 @@
     </main>
   </div>
 
-  <!-- نافذة إضافة/تعديل صنف -->
+  <!-- نافذة إضافة/تعديل صنف وتسجيل الباركود -->
   <div id="item-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
       <h3 id="modal-title" class="text-base font-extrabold text-slate-900">إضافة صنف جديد</h3>
       <input type="hidden" id="edit-id" />
       <div class="space-y-3 text-xs font-bold">
+        <div>
+          <label class="block mb-1 text-emerald-700 font-extrabold">رقم الباركود (اضرب العلبة بالماكينة هنا)</label>
+          <input id="m-barcode" type="text" placeholder="اضغط هنا ثم اضرب العلبة بماكينة الباركود..." class="w-full rounded-xl border-2 border-emerald-500/50 bg-emerald-50/30 px-3 py-2.5 text-left font-extrabold" dir="ltr" />
+        </div>
         <div>
           <label class="block mb-1 text-slate-600">اسم الدواء / المستحضر</label>
           <input id="m-name" type="text" class="w-full rounded-xl border border-slate-300 px-3 py-2.5" />
@@ -257,7 +264,7 @@
           </div>
           <div>
             <label class="block mb-1 text-slate-600">الصلاحية</label>
-            <input id="m-exp" type="text" placeholder="2027-08" value="2027-10" class="w-full rounded-xl border border-slate-300 px-3 py-2.5" />
+            <input id="m-exp" type="text" value="2027-10" class="w-full rounded-xl border border-slate-300 px-3 py-2.5" />
           </div>
         </div>
       </div>
@@ -268,10 +275,8 @@
     </div>
   </div>
 
-  <!-- منطقة الطباعة الحرارية 80mm -->
   <div id="receipt-print-area" class="hidden text-center text-xs font-bold"></div>
 
-  <!-- ربط Firebase SDK (Authentication + Realtime Database) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -291,53 +296,31 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // قاعدة بيانات الأدوية المصرية الأساسية
     const DEFAULT_PRODUCTS = [
-      { id: "p1", name: "بانادول إكسترا 24 قرص", cat: "مسكنات", price: 58, strips: 2, stock: 35, exp: "2027-09" },
-      { id: "p2", name: "بانادول أدفانس أزرق 24 قرص", cat: "مسكنات", price: 46, strips: 2, stock: 40, exp: "2027-11" },
-      { id: "p3", name: "كتافلام 50 مجم 20 قرص", cat: "مسكنات", price: 66, strips: 2, stock: 28, exp: "2027-06" },
-      { id: "p4", name: "كتافاست فوار 9 أكياس", cat: "مسكنات", price: 54, strips: 9, stock: 30, exp: "2027-08" },
-      { id: "p5", name: "بروفين 600 مجم 30 قرص", cat: "مسكنات", price: 69, strips: 3, stock: 25, exp: "2027-05" },
-      { id: "p6", name: "دوليبران 1000 مجم 15 قرص", cat: "مسكنات", price: 36, strips: 2, stock: 32, exp: "2027-10" },
-      { id: "p7", name: "أوجمنتين 1 جم 14 قرص", cat: "مضادات حيوية", price: 138, strips: 2, stock: 22, exp: "2027-04" },
-      { id: "p8", name: "هاي بيوتك 1 جم 16 قرص", cat: "مضادات حيوية", price: 118, strips: 2, stock: 20, exp: "2027-07" },
-      { id: "p9", name: "زيثروماكس 500 مجم 3 كبسولات", cat: "مضادات حيوية", price: 105, strips: 1, stock: 18, exp: "2027-09" },
-      { id: "p10", name: "تافانيك 500 مجم 5 أقراص", cat: "مضادات حيوية", price: 115, strips: 1, stock: 14, exp: "2027-03" },
-      { id: "p11", name: "فلاجيل 500 مجم 20 قرص", cat: "مضادات حيوية", price: 28, strips: 2, stock: 45, exp: "2028-01" },
-      { id: "p12", name: "كونترولوك 40 مجم 14 قرص", cat: "جهاز هضمي", price: 116, strips: 2, stock: 24, exp: "2027-08" },
-      { id: "p13", name: "نيكسيوم 40 مجم 14 قرص", cat: "جهاز هضمي", price: 168, strips: 2, stock: 16, exp: "2027-06" },
-      { id: "p14", name: "أوميز 20 مجم 14 كبسولة", cat: "جهاز هضمي", price: 52, strips: 2, stock: 30, exp: "2027-11" },
-      { id: "p15", name: "جافيسكون أدفانس شراب 150 مل", cat: "جهاز هضمي", price: 95, strips: 1, stock: 19, exp: "2027-05" },
-      { id: "p16", name: "أنتينال 24 كبسولة", cat: "جهاز هضمي", price: 48, strips: 2, stock: 38, exp: "2027-12" },
-      { id: "p17", name: "كولوفيرين د 30 قرص", cat: "جهاز هضمي", price: 84, strips: 3, stock: 22, exp: "2027-09" },
-      { id: "p18", name: "كونجستال 20 قرص", cat: "برد وحساسية", price: 38, strips: 2, stock: 50, exp: "2027-10" },
-      { id: "p19", name: "كومتريكس 20 قرص", cat: "برد وحساسية", price: 45, strips: 2, stock: 35, exp: "2027-08" },
-      { id: "p20", name: "تلفاست 180 مجم 20 قرص", cat: "برد وحساسية", price: 112, strips: 2, stock: 21, exp: "2027-07" },
-      { id: "p21", name: "كلاريتين 10 مجم 20 قرص", cat: "برد وحساسية", price: 88, strips: 2, stock: 26, exp: "2027-11" },
-      { id: "p22", name: "أوتريفين نقط للأنف كبار", cat: "برد وحساسية", price: 24, strips: 1, stock: 42, exp: "2027-06" },
-      { id: "p23", name: "كونكور 5 مجم 30 قرص", cat: "ضغط وقلب وسكري", price: 78, strips: 3, stock: 29, exp: "2027-09" },
-      { id: "p24", name: "جلوكوفاج 1000 مجم 30 قرص", cat: "ضغط وقلب وسكري", price: 66, strips: 3, stock: 34, exp: "2027-12" },
-      { id: "p25", name: "كريستور 10 مجم 14 قرص", cat: "ضغط وقلب وسكري", price: 165, strips: 2, stock: 15, exp: "2027-05" },
-      { id: "p26", name: "أسبوسيد أطفال 30 قرص", cat: "ضغط وقلب وسكري", price: 22, strips: 3, stock: 60, exp: "2028-02" },
-      { id: "p27", name: "سنتروم لوتين 30 قرص", cat: "فيتامينات", price: 320, strips: 1, stock: 12, exp: "2027-08" },
-      { id: "p28", name: "ميلجا أدفانس 30 قرص", cat: "فيتامينات", price: 114, strips: 3, stock: 27, exp: "2027-10" },
-      { id: "p29", name: "ليمتلس أوميجا 3 30 كبسولة", cat: "فيتامينات", price: 145, strips: 3, stock: 20, exp: "2027-09" },
-      { id: "p30", name: "فيدروب نقط فيتامين د3", cat: "فيتامينات", price: 32, strips: 1, stock: 45, exp: "2027-11" },
-      { id: "p31", name: "فيوسيدين كريم 20 جم", cat: "جلدية وعيون", price: 54, strips: 1, stock: 33, exp: "2027-07" },
-      { id: "p32", name: "ميبو مرهم حروق 30 جم", cat: "جلدية وعيون", price: 82, strips: 1, stock: 25, exp: "2027-06" },
-      { id: "p33", name: "هاي فريش قطرة مرطبة للعين", cat: "جلدية وعيون", price: 68, strips: 1, stock: 28, exp: "2027-08" },
-      { id: "p34", name: "لاروش بوزيه إيفاكلار غسول 200 مل", cat: "مستحضرات تجميل", price: 560, strips: 1, stock: 10, exp: "2028-03" },
-      { id: "p35", name: "سيرافي مرطب البشرة 340 جم", cat: "مستحضرات تجميل", price: 620, strips: 1, stock: 8, exp: "2028-01" },
-      { id: "p36", name: "بيوديرما سينسيبيو مزيل مكياج 250 مل", cat: "مستحضرات تجميل", price: 490, strips: 1, stock: 11, exp: "2027-12" },
-      { id: "p37", name: "ستارفيل غسول تفتيح 200 مل", cat: "مستحضرات تجميل", price: 145, strips: 1, stock: 18, exp: "2027-10" },
-      { id: "p38", name: "كليو صن بلوك 50+ جل كريم", cat: "مستحضرات تجميل", price: 295, strips: 1, stock: 15, exp: "2027-09" },
-      { id: "p39", name: "شان كريم مرطب للوجه 120 جم", cat: "مستحضرات تجميل", price: 165, strips: 1, stock: 22, exp: "2027-11" },
-      { id: "p40", name: "بوباي صن بلوك 50+ جل", cat: "مستحضرات تجميل", price: 240, strips: 1, stock: 16, exp: "2027-08" }
+      { id: "p1", barcode: "622100100101", name: "بانادول إكسترا 24 قرص", cat: "مسكنات", price: 58, strips: 2, stock: 35, exp: "2027-09" },
+      { id: "p2", barcode: "622100100102", name: "بانادول أدفانس أزرق 24 قرص", cat: "مسكنات", price: 46, strips: 2, stock: 40, exp: "2027-11" },
+      { id: "p3", barcode: "622100100103", name: "كتافلام 50 مجم 20 قرص", cat: "مسكنات", price: 66, strips: 2, stock: 28, exp: "2027-06" },
+      { id: "p4", barcode: "622100100104", name: "كتافاست فوار 9 أكياس", cat: "مسكنات", price: 54, strips: 9, stock: 30, exp: "2027-08" },
+      { id: "p5", barcode: "622100100105", name: "بروفين 600 مجم 30 قرص", cat: "مسكنات", price: 69, strips: 3, stock: 25, exp: "2027-05" },
+      { id: "p6", barcode: "622100100106", name: "دوليبران 1000 مجم 15 قرص", cat: "مسكنات", price: 36, strips: 2, stock: 32, exp: "2027-10" },
+      { id: "p7", barcode: "622100100107", name: "أوجمنتين 1 جم 14 قرص", cat: "مضادات حيوية", price: 138, strips: 2, stock: 22, exp: "2027-04" },
+      { id: "p8", barcode: "622100100108", name: "هاي بيوتك 1 جم 16 قرص", cat: "مضادات حيوية", price: 118, strips: 2, stock: 20, exp: "2027-07" },
+      { id: "p9", barcode: "622100100109", name: "زيثروماكس 500 مجم 3 كبسولات", cat: "مضادات حيوية", price: 105, strips: 1, stock: 18, exp: "2027-09" },
+      { id: "p10", barcode: "622100100110", name: "تافانيك 500 مجم 5 أقراص", cat: "مضادات حيوية", price: 115, strips: 1, stock: 14, exp: "2027-03" },
+      { id: "p11", barcode: "622100100111", name: "فلاجيل 500 مجم 20 قرص", cat: "مضادات حيوية", price: 28, strips: 2, stock: 45, exp: "2028-01" },
+      { id: "p12", barcode: "622100100112", name: "كونترولوك 40 مجم 14 قرص", cat: "جهاز هضمي", price: 116, strips: 2, stock: 24, exp: "2027-08" },
+      { id: "p13", barcode: "622100100113", name: "نيكسيوم 40 مجم 14 قرص", cat: "جهاز هضمي", price: 168, strips: 2, stock: 16, exp: "2027-06" },
+      { id: "p14", barcode: "622100100114", name: "أوميز 20 مجم 14 كبسولة", cat: "جهاز هضمي", price: 52, strips: 2, stock: 30, exp: "2027-11" },
+      { id: "p15", barcode: "622100100115", name: "جافيسكون أدفانس شراب 150 مل", cat: "جهاز هضمي", price: 95, strips: 1, stock: 19, exp: "2027-05" },
+      { id: "p16", barcode: "622100100116", name: "أنتينال 24 كبسولة", cat: "جهاز هضمي", price: 48, strips: 2, stock: 38, exp: "2027-12" },
+      { id: "p17", barcode: "622100100117", name: "كولوفيرين د 30 قرص", cat: "جهاز هضمي", price: 84, strips: 3, stock: 22, exp: "2027-09" },
+      { id: "p18", barcode: "622100100118", name: "كونجستال 20 قرص", cat: "برد وحساسية", price: 38, strips: 2, stock: 50, exp: "2027-10" },
+      { id: "p19", barcode: "622100100119", name: "كومتريكس 20 قرص", cat: "برد وحساسية", price: 45, strips: 2, stock: 35, exp: "2027-08" },
+      { id: "p20", barcode: "622100100120", name: "تلفاست 180 مجم 20 قرص", cat: "برد وحساسية", price: 112, strips: 2, stock: 21, exp: "2027-07" }
     ];
 
     let state = { products: [], invoices: [], cart: [], selectedCat: "الكل" };
 
-    // مراقبة حالة تسجيل الدخول
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.getElementById("auth-screen").classList.add("hidden");
@@ -351,7 +334,6 @@
       lucide.createIcons();
     });
 
-    // نموذج تسجيل الدخول
     document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("login-email").value.trim();
@@ -374,7 +356,6 @@
 
     window.logoutUser = () => signOut(auth);
 
-    // المزامنة السحابية مع Firebase Realtime Database
     function initCloudSync() {
       const dataRef = ref(db, "rosheta_data");
       onValue(dataRef, (snapshot) => {
@@ -392,10 +373,6 @@
           syncToCloud();
         }
         renderAll();
-      }, (error) => {
-        const badge = document.getElementById("sync-badge");
-        badge.className = "inline-flex items-center gap-1.5 rounded-full bg-rose-50 border border-rose-200 px-3 py-1 text-xs font-bold text-rose-700";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> خطأ في الصلاحيات السحابية`;
       });
     }
 
@@ -407,7 +384,6 @@
       });
     }
 
-    // التنقل بين التبويبات
     window.switchTab = (tab) => {
       ["pos", "inventory", "invoices", "dashboard"].forEach(t => {
         document.getElementById("tab-" + t).classList.add("hidden");
@@ -422,12 +398,13 @@
 
       const titles = {
         pos: "شاشة الكاشير ونقطة البيع",
-        inventory: "إدارة المخزون والأدوية",
+        inventory: "إدارة المخزون والباركود",
         invoices: "سجل الفواتير والمرتجعات",
         dashboard: "التقارير ولوحة التحكم"
       };
       document.getElementById("page-title").textContent = titles[tab];
       renderAll();
+      if (tab === "pos") setTimeout(() => document.getElementById("pos-search").focus(), 100);
     };
 
     function renderAll() {
@@ -449,23 +426,78 @@
 
     window.setCat = (c) => { state.selectedCat = c; renderPosProducts(); renderCategories(); };
 
-    document.getElementById("pos-search").addEventListener("input", renderPosProducts);
-    document.getElementById("pos-search").addEventListener("keydown", (e) => {
+    // صوت تنبيه خفيف عند قراءة الباركود
+    function playBeep(success = true) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(success ? 880 : 280, ctx.currentTime);
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + (success ? 0.1 : 0.25));
+      } catch(e) {}
+    }
+
+    function showScanToast(msg, ok = true) {
+      const t = document.getElementById("barcode-toast");
+      t.textContent = msg;
+      t.className = `text-xs font-extrabold px-2.5 py-0.5 rounded-full ${ok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'}`;
+      t.classList.remove("hidden");
+      setTimeout(() => t.classList.add("hidden"), 2500);
+    }
+
+    const posSearchInput = document.getElementById("pos-search");
+    posSearchInput.addEventListener("input", renderPosProducts);
+    posSearchInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        const filtered = getFilteredPos();
-        if (filtered.length > 0) {
-          addToCart(filtered[0].id, "box");
-          e.target.value = "";
+        e.preventDefault();
+        const code = posSearchInput.value.trim();
+        if (!code) return;
+
+        // 1. البحث بالباركود المطابق تماماً أولاً
+        const exactBarcode = state.products.find(p => p.barcode && p.barcode.toString().trim() === code);
+        if (exactBarcode) {
+          addToCart(exactBarcode.id, "box");
+          playBeep(true);
+          showScanToast(`تمت إضافة: ${exactBarcode.name}`, true);
+          posSearchInput.value = "";
           renderPosProducts();
+          return;
+        }
+
+        // 2. إذا كان نص بحث عادي وظهر نتيجة واحدة أو نتائج
+        const filtered = getFilteredPos();
+        if (filtered.length > 0 && !/^\d{6,}$/.test(code)) {
+          addToCart(filtered[0].id, "box");
+          playBeep(true);
+          posSearchInput.value = "";
+          renderPosProducts();
+        } else {
+          playBeep(false);
+          showScanToast(`باركود غير مسجل (${code}) — سجّله من المخزون`, false);
+          posSearchInput.select();
+        }
+      }
+    });
+
+    // منع خروج الماكينة عن خانة البحث في شاشة الكاشير إلا عند الكتابة في حقل آخر
+    document.addEventListener("keydown", (e) => {
+      const posVisible = !document.getElementById("tab-pos").classList.contains("hidden");
+      const appVisible = !document.getElementById("app-container").classList.contains("hidden");
+      const modalHidden = document.getElementById("item-modal").classList.contains("hidden");
+      if (posVisible && appVisible && modalHidden && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "SELECT") {
+        if (/^[a-zA-Z0-9]$/.test(e.key)) {
+          posSearchInput.focus();
         }
       }
     });
 
     function getFilteredPos() {
-      const q = document.getElementById("pos-search").value.trim().toLowerCase();
+      const q = posSearchInput.value.trim().toLowerCase();
       return state.products.filter(p => {
         const matchCat = state.selectedCat === "الكل" || p.cat === state.selectedCat;
-        const matchQ = !q || p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q);
+        const matchQ = !q || p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || (p.barcode && p.barcode.toLowerCase().includes(q));
         return matchCat && matchQ;
       });
     }
@@ -476,8 +508,9 @@
         <div class="p-3.5 flex items-center justify-between gap-3 hover:bg-slate-50 transition">
           <div>
             <div class="font-extrabold text-sm text-slate-800">${p.name}</div>
-            <div class="flex items-center gap-2 mt-1 text-xs font-bold text-slate-500">
+            <div class="flex flex-wrap items-center gap-2 mt-1 text-xs font-bold text-slate-500">
               <span class="bg-slate-100 px-2 py-0.5 rounded">${p.cat}</span>
+              ${p.barcode ? `<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-mono text-[11px]">${p.barcode}</span>` : ''}
               <span class="${p.stock <= 5 ? 'text-rose-600' : 'text-emerald-700'}">الرصيد: ${p.stock} علبة</span>
             </div>
           </div>
@@ -505,12 +538,12 @@
       renderCart();
     };
 
-    window.clearCart = () => { state.cart = []; renderCart(); };
+    window.clearCart = () => { state.cart = []; renderCart(); posSearchInput.focus(); };
 
     window.renderCart = () => {
       const container = document.getElementById("cart-items");
       if (state.cart.length === 0) {
-        container.innerHTML = `<div class="py-10 text-center text-xs font-bold text-slate-400">السلة فارغة — اختر صنفاً لإضافته</div>`;
+        container.innerHTML = `<div class="py-10 text-center text-xs font-bold text-slate-400">السلة فارغة — اضرب الباركود أو اختر صنفاً</div>`;
       } else {
         container.innerHTML = state.cart.map((item, idx) => `
           <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
@@ -544,7 +577,6 @@
       const disc = parseFloat(document.getElementById("cart-discount").value) || 0;
       const total = Math.max(0, sub - disc);
 
-      // خصم من المخزون
       state.cart.forEach(item => {
         const prod = state.products.find(p => p.id === item.id);
         if (prod) {
@@ -570,6 +602,7 @@
       document.getElementById("cust-name").value = "";
       document.getElementById("cart-discount").value = 0;
       renderAll();
+      posSearchInput.focus();
     };
 
     function printReceipt(inv) {
@@ -599,36 +632,47 @@
 
     window.renderInventory = () => {
       const q = document.getElementById("inv-search").value.trim().toLowerCase();
-      const filtered = state.products.filter(p => !q || p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q));
+      const filtered = state.products.filter(p => !q || p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || (p.barcode && p.barcode.toLowerCase().includes(q)));
       document.getElementById("inventory-table").innerHTML = filtered.map(p => `
         <tr class="hover:bg-slate-50">
           <td class="p-3.5 font-extrabold text-slate-800">${p.name}</td>
+          <td class="p-3.5 font-mono text-blue-700">${p.barcode || '—'}</td>
           <td class="p-3.5"><span class="bg-slate-100 px-2.5 py-1 rounded-lg">${p.cat}</span></td>
           <td class="p-3.5 text-emerald-700 font-extrabold">${p.price} ج.م</td>
-          <td class="p-3.5">${p.strips}</td>
           <td class="p-3.5"><span class="px-2.5 py-1 rounded-lg font-extrabold ${p.stock <= 5 ? 'bg-rose-100 text-rose-700' : 'bg-emerald-50 text-emerald-700'}">${p.stock}</span></td>
           <td class="p-3.5">${p.exp}</td>
           <td class="p-3.5 flex gap-2">
-            <button onclick="editItem('${p.id}')" class="text-blue-600 hover:underline">تعديل</button>
+            <button onclick="editItem('${p.id}')" class="text-blue-600 hover:underline">تعديل / باركود</button>
             <button onclick="deleteItem('${p.id}')" class="text-rose-600 hover:underline">حذف</button>
           </td>
         </tr>
       `).join("");
     };
 
+    // منع الماكينة من إرسال النموذج تلقائياً عند قراءة الباركود داخل نافذة التعديل
+    document.getElementById("m-barcode").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("m-name").focus();
+      }
+    });
+
     window.openAddModal = () => {
-      document.getElementById("modal-title").textContent = "إضافة صنف جديد";
+      document.getElementById("modal-title").textContent = "إضافة صنف جديد وتسجيل الباركود";
       document.getElementById("edit-id").value = "";
+      document.getElementById("m-barcode").value = "";
       document.getElementById("m-name").value = "";
       document.getElementById("m-price").value = "";
       document.getElementById("item-modal").classList.remove("hidden");
+      setTimeout(() => document.getElementById("m-barcode").focus(), 100);
     };
 
     window.editItem = (id) => {
       const p = state.products.find(x => x.id === id);
       if (!p) return;
-      document.getElementById("modal-title").textContent = "تعديل بيانات الصنف";
+      document.getElementById("modal-title").textContent = "تعديل الصنف / ربط الباركود";
       document.getElementById("edit-id").value = p.id;
+      document.getElementById("m-barcode").value = p.barcode || "";
       document.getElementById("m-name").value = p.name;
       document.getElementById("m-cat").value = p.cat;
       document.getElementById("m-price").value = p.price;
@@ -636,6 +680,7 @@
       document.getElementById("m-stock").value = p.stock;
       document.getElementById("m-exp").value = p.exp;
       document.getElementById("item-modal").classList.remove("hidden");
+      setTimeout(() => document.getElementById("m-barcode").focus(), 100);
     };
 
     window.closeModal = () => document.getElementById("item-modal").classList.add("hidden");
@@ -644,6 +689,7 @@
       const id = document.getElementById("edit-id").value;
       const itemData = {
         id: id || "p" + Date.now(),
+        barcode: document.getElementById("m-barcode").value.trim(),
         name: document.getElementById("m-name").value.trim(),
         cat: document.getElementById("m-cat").value,
         price: parseFloat(document.getElementById("m-price").value) || 0,
